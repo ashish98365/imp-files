@@ -1,0 +1,116 @@
+<dependency>
+    <groupId>org.seleniumhq.selenium</groupId>
+    <artifactId>selenium-java</artifactId>
+    <version>2.52.0</version>
+</dependency>
+
+package browser;
+
+import java.io.BufferedReader;
+import java.io.InputStreamReader;
+import java.io.PrintWriter;
+import java.util.List;
+
+import org.openqa.selenium.By;
+import org.openqa.selenium.WebDriver;
+import org.openqa.selenium.WebElement;
+import org.openqa.selenium.chrome.ChromeDriver;
+import org.openqa.selenium.support.ui.ExpectedConditions;
+import org.openqa.selenium.support.ui.Select;
+
+public class ChormeBrowserScript
+{
+	public static void main(String [] args) throws InterruptedException, Exception
+	{
+		
+		System.out.println("Enter word list: ");
+		BufferedReader reader =  new BufferedReader(new InputStreamReader(System.in));
+		String listNo = reader.readLine();
+		
+		System.out.println("Enter location where you want to save file(Don't provide file name): ");
+		String path = reader.readLine();
+		if(path.contains("\\"))
+		{
+			path = path.replace("\\", "/");
+		}
+		
+		System.out.println("Enter location where chromedriver.exe is saved(Don't provide file name): ");
+		String chromePath = reader.readLine();
+		if(chromePath.contains("\\"))
+		{
+			chromePath = chromePath.replace("\\", "/");
+		}
+		
+		PrintWriter writer = new PrintWriter(path+"/words-list-"+listNo+".txt", "UTF-8");
+		
+		System.setProperty("webdriver.chrome.driver", chromePath+"/chromedriver.exe");
+        WebDriver driver = new ChromeDriver();
+        driver.navigate().to("https://www.jamboreeeducation.com/login");
+        
+        WebElement email = driver.findElement(By.name("email"));
+        WebElement password = driver.findElement(By.name("password"));
+        
+        email.sendKeys("ashish98365@gmail.com");
+        password.sendKeys("ashish98365");
+        
+        WebElement login = driver.findElement(By.className("btn-success"));
+        login.click();
+        
+        driver.navigate().to("https://www.jamboreeeducation.com/vocab");
+        driver.navigate().to("https://www.jamboreeeducation.com/vocab/learn");
+
+        Select wordList = new Select(driver.findElement(By.id("vocab-list")));
+
+        wordList.selectByValue(listNo.trim());
+        
+        WebElement dropdown = driver.findElement(By.id("vocab-groups"));
+        
+        WebElement select = driver.findElement(By.id("vocab-groups"));
+		Select dropDown = new Select(select);           
+		
+		List<WebElement> Options = dropDown.getOptions();
+        
+		for(WebElement option : Options)
+		{
+			try
+			{
+				writeTofile(driver, writer, dropDown, option);
+			}
+			catch (Exception e)
+			{
+				writeTofile(driver, writer, dropDown, option);
+			}
+		}
+        writer.flush();
+        writer.close();
+        System.out.println("-------------------End--------------");
+	}
+	
+	private static void writeTofile(WebDriver driver, PrintWriter writer, Select dropDown, WebElement option) throws Exception
+	{
+		writer.write("----------------------"+option.getText()+"------------------------\n\n");
+		dropDown.selectByVisibleText(option.getText());
+		ExpectedConditions.elementToBeClickable(driver.findElement(By.cssSelector("a[class='btn btn-green']")));
+		Thread.sleep(2000);
+		List<WebElement> anchorElements = driver.findElements(By.cssSelector("a[class='btn btn-green']"));
+		for(WebElement anchorElement: anchorElements)
+		{
+			writer.write(anchorElement.getText()+":\n");
+			Thread.sleep(3000);
+			if(!anchorElement.isDisplayed() || !anchorElement.isEnabled())
+			{
+				System.out.println("Not added in text file-----------: Group: "+option.getText()+" word: "+anchorElement.getText());
+				continue;
+			}
+			anchorElement.click();
+			Thread.sleep(1000);
+			
+			WebElement meaning = driver.findElement(By.cssSelector("div[class='bootbox-body'] > p:nth-child(2)"));
+			WebElement sentence = driver.findElement(By.cssSelector("div[class='bootbox-body'] > p:nth-child(3)"));
+			writer.write(meaning.getText()+"\n");
+			writer.write(sentence.getText()+"\n\n");
+			driver.findElement(By.cssSelector("button[class='btn btn-sm btn-default']")).click();
+		}
+	}
+	
+}
