@@ -1,0 +1,46 @@
+.dot {
+    margin-right: 21px;
+    height: 25px;
+    width: 25px;
+    background-color: #bbb;
+    float: left;
+    border-radius: 50%;
+    line-height: 70px;
+    text-align: center;
+    font-weight: bold;
+}
+.reserved-dot {
+    background-color: #fbf419;
+}
+.test{
+    color: red;
+}
+
+<!-- Before close button of moal popup -->
+<span class="dot" id="easy-level" onclick="saveLevel('easy')">Easy</span><span class="dot" id="medium-level" onclick="saveLevel('medium')" style="margin-right: 37px;">Medium</span><span class="dot" id="hard-level" onclick="saveLevel('hard')">Hard</span>
+
+function preparePopup(word, meaning, sentence)
+    {
+        /*-----changes----------------*/
+        var difficultyLevel = getLevel(word.trim())
+        /*-----changes----------------*/
+        $("#popup-word").html(word.trim());
+        $("#popup-meaning").html(meaning.trim());
+        $("#popup-sentence").html(sentence.trim());
+    }
+
+    /*-----changes----------------*/
+    function saveLevel(level)
+    {
+        $(".dot").removeClass("reserved-dot");
+        androidObj.saveWordDifficultyLevel($("#popup-word").html(), level, $("#popup-header").html(), '1', $("#popup-meaning").html(), $("#popup-sentence").html());
+        $("#"+level+"-level").addClass('reserved-dot');
+    }
+    function getLevel(word)
+    {
+        $(".dot").removeClass("reserved-dot");
+        var difficultyLevel = androidObj.getWordDifficultyLevel(word);
+        $("#"+difficultyLevel+"-level").addClass('reserved-dot');
+        console.log(difficultyLevel);
+    }
+    /*-----changes END----------------*/
