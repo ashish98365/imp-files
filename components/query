@@ -1,0 +1,8 @@
+SELECT list, 
+count(1) as total,
+sum(case WHEN difficultlevel='easy' THEN 1 ELSE 0 END) as easy,
+sum(case WHEN difficultlevel='medium' THEN 1 ELSE 0 END) as medium,
+sum(case WHEN difficultlevel='hard' THEN 1 ELSE 0 END) as hard,
+sum(case WHEN difficultlevel='nd' THEN 1 ELSE 0 END) as nd
+ FROM test
+GROUP BY list
